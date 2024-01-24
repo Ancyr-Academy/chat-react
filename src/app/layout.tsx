@@ -1,9 +1,13 @@
 import type { Metadata } from "next";
-import { Inter } from "next/font/google";
+import { Roboto } from "next/font/google";
 import "./globals.css";
 import { ChatRoot } from "@/modules/chat/react/ChatRoot";
+import { AppRouterCacheProvider } from "@mui/material-nextjs/v13-appRouter";
 
-const inter = Inter({ subsets: ["latin"] });
+const roboto = Roboto({
+  weight: ["300", "400", "500", "700"],
+  subsets: ["latin"],
+});
 
 export const metadata: Metadata = {
   title: "Chat",
@@ -17,8 +21,10 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body className={inter.className}>
-        <ChatRoot>{children}</ChatRoot>
+      <body className={roboto.className}>
+        <AppRouterCacheProvider>
+          <ChatRoot>{children}</ChatRoot>
+        </AppRouterCacheProvider>
       </body>
     </html>
   );

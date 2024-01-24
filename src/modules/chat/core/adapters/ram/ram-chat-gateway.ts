@@ -82,10 +82,17 @@ export class RAMChatGateway implements IChatGateway {
     this.listeners = this.listeners.filter((l) => l !== listener);
   }
 
+  // Non-override methods
   getMessagesListSync(): Message[] {
     return this.messages;
   }
 
+  addMessage(message: Message) {
+    this.messages.push(message);
+    this.listeners.forEach((l) => l.onNewMessage(message));
+  }
+
+  // Internals
   private assertUserIsLoggedIn() {
     if (!this.currentUser) {
       throw new Error("User is not logged in");

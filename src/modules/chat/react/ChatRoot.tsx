@@ -14,6 +14,7 @@ import {
 } from "@/modules/chat/core/adapters/ram/ram-chat-gateway";
 import { Message } from "@/modules/chat/core/model/message";
 import { IEventListener } from "@/modules/chat/core/ports/chat-gateway";
+import { ActivitySimulator } from "@/modules/chat/core/adapters/ram/activity-simulator";
 
 type ContextType = {
   messages: Message[];
@@ -28,14 +29,14 @@ const Context = createContext<ContextType>({
 export const ChatRoot: React.FC<{ children: React.ReactNode }> = ({
   children,
 }) => {
+  const gatewayRef = useRef<RAMChatGateway>();
   const chatRef = useRef<Chat>();
   if (!chatRef.current) {
-    chatRef.current = new Chat(
-      new RAMChatGateway({
-        users: [User.create("alice", "alice"), User.create("bob", "bob")],
-      }),
-    );
+    gatewayRef.current = new RAMChatGateway({
+      users: [User.create("alice", "alice"), User.create("bob", "bob")],
+    });
 
+    chatRef.current = new Chat(gatewayRef.current);
     chatRef.current?.login("alice", "alice");
   }
 
@@ -56,6 +57,15 @@ export const ChatRoot: React.FC<{ children: React.ReactNode }> = ({
       chatRef.current?.removeListener(listener);
     };
   });
+
+  useEffect(() => {
+    const activitySimulator = new ActivitySimulator(gatewayRef.current!);
+    activitySimulator.start();
+
+    return () => {
+      activitySimulator.stop();
+    };
+  }, []);
 
   const contextValue = useMemo(
     () => ({
